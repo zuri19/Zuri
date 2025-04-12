@@ -1,0 +1,168 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zuri Memories</title>
+  <script type="module">
+    // Firebase imports
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+    import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-storage.js";
+    import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";const firebaseConfig = {
+  apiKey: "AIzaSyD-Zrsq-6o32hfX509atEDUWuDWblHiTR8",
+  authDomain: "zuri-7b13f.firebaseapp.com",
+  projectId: "zuri-7b13f",
+  storageBucket: "zuri-7b13f.appspot.com",
+  messagingSenderId: "620928282326",
+  appId: "1:620928282326:web:04dc50c8e1939e08426377",
+  measurementId: "G-LRKQRCJZRF"
+};
+
+const app = initializeApp(firebaseConfig);
+const storage = getStorage(app);
+const db = getFirestore(app);
+
+const PASSWORD = "zuriaccess";
+const remembered = localStorage.getItem("remember") === "true";
+
+const loginForm = document.getElementById("login-form");
+const gallerySection = document.getElementById("gallery-section");
+const uploadForm = document.getElementById("upload-form");
+
+if (remembered) {
+  loginForm.style.display = "none";
+  gallerySection.style.display = "block";
+  loadImages();
+}
+
+document.getElementById("login-btn").onclick = () => {
+  const pass = document.getElementById("password").value;
+  const remember = document.getElementById("remember").checked;
+  if (pass === PASSWORD) {
+    if (remember) localStorage.setItem("remember", true);
+    loginForm.style.display = "none";
+    gallerySection.style.display = "block";
+    loadImages();
+  } else {
+    alert("Incorrect password.");
+  }
+};
+
+uploadForm.onsubmit = async (e) => {
+  e.preventDefault();
+  const files = document.getElementById("images").files;
+  const caption = document.getElementById("caption").value;
+
+  for (let file of files) {
+    const imgRef = storageRef(storage, `images/${Date.now()}-${file.name}`);
+    await uploadBytes(imgRef, file);
+    const url = await getDownloadURL(imgRef);
+
+    await addDoc(collection(db, "memories"), {
+      url,
+      caption,
+      created: serverTimestamp(),
+      path: imgRef.fullPath
+    });
+  }
+  uploadForm.reset();
+  loadImages();
+};
+
+async function loadImages() {
+  const gallery = document.getElementById("gallery");
+  gallery.innerHTML = "Loading...";
+  const q = query(collection(db, "memories"), orderBy("created", "desc"));
+  const snapshots = await getDocs(q);
+  gallery.innerHTML = "";
+  snapshots.forEach(docSnap => {
+    const data = docSnap.data();
+    const div = document.createElement("div");
+    div.className = "image-card";
+    div.innerHTML = `
+      <img src="${data.url}" alt="Memory" />
+      <p>${data.caption || "No caption"}</p>
+      <button onclick="deleteImage('${docSnap.id}', '${data.path}')">Delete</button>
+    `;
+    gallery.appendChild(div);
+  });
+}
+
+window.deleteImage = async (id, path) => {
+  await deleteDoc(doc(db, "memories", id));
+  await deleteObject(storageRef(storage, path));
+  loadImages();
+};
+
+  </script>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #fef6f6 url('https://i.imgur.com/OoP3tYM.jpg') no-repeat center top;
+      background-size: cover;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 600px;
+      margin: auto;
+      padding: 2rem;
+      background: rgba(255, 255, 255, 0.85);
+      border-radius: 1rem;
+      margin-top: 4rem;
+    }
+    h1 {
+      text-align: center;
+      font-size: 2rem;
+      color: #5c5470;
+    }
+    input, textarea, button {
+      width: 100%;
+      padding: 0.7rem;
+      margin: 0.5rem 0;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+    }
+    #gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
+    }
+    .image-card {
+      background: #fff;
+      border-radius: 10px;
+      padding: 0.5rem;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .image-card img {
+      width: 100%;
+      border-radius: 10px;
+    }
+    .image-card p {
+      font-size: 0.9rem;
+      color: #444;
+    }
+    .image-card button {
+      background: #f88;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="login-form">
+    <h1>Zuri Memories</h1>
+    <input type="password" id="password" placeholder="Enter password" />
+    <label><input type="checkbox" id="remember"> Remember me</label>
+    <button id="login-btn">Enter</button>
+  </div>  <div class="container" id="gallery-section" style="display: none">
+    <h1>Falling for you to the deepest point of deepest Pacific Ocean whenever I see you</h1>
+    <form id="upload-form">
+      <input type="file" id="images" multiple required />
+      <textarea id="caption" placeholder="Optional caption"></textarea>
+      <button type="submit">Upload</button>
+    </form>
+    <div id="gallery"></div>
+  </div>
+</body>
+</html>
