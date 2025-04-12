@@ -1,77 +1,168 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Our Private World</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zuri Memories</title>
+  <script type="module">
+    // Firebase imports
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+    import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-storage.js";
+    import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";const firebaseConfig = {
+  apiKey: "AIzaSyD-Zrsq-6o32hfX509atEDUWuDWblHiTR8",
+  authDomain: "zuri-7b13f.firebaseapp.com",
+  projectId: "zuri-7b13f",
+  storageBucket: "zuri-7b13f.appspot.com",
+  messagingSenderId: "620928282326",
+  appId: "1:620928282326:web:04dc50c8e1939e08426377",
+  measurementId: "G-LRKQRCJZRF"
+};
+
+const app = initializeApp(firebaseConfig);
+const storage = getStorage(app);
+const db = getFirestore(app);
+
+const PASSWORD = "zuriaccess";
+const remembered = localStorage.getItem("remember") === "true";
+
+const loginForm = document.getElementById("login-form");
+const gallerySection = document.getElementById("gallery-section");
+const uploadForm = document.getElementById("upload-form");
+
+if (remembered) {
+  loginForm.style.display = "none";
+  gallerySection.style.display = "block";
+  loadImages();
+}
+
+document.getElementById("login-btn").onclick = () => {
+  const pass = document.getElementById("password").value;
+  const remember = document.getElementById("remember").checked;
+  if (pass === PASSWORD) {
+    if (remember) localStorage.setItem("remember", true);
+    loginForm.style.display = "none";
+    gallerySection.style.display = "block";
+    loadImages();
+  } else {
+    alert("Incorrect password.");
+  }
+};
+
+uploadForm.onsubmit = async (e) => {
+  e.preventDefault();
+  const files = document.getElementById("images").files;
+  const caption = document.getElementById("caption").value;
+
+  for (let file of files) {
+    const imgRef = storageRef(storage, `images/${Date.now()}-${file.name}`);
+    await uploadBytes(imgRef, file);
+    const url = await getDownloadURL(imgRef);
+
+    await addDoc(collection(db, "memories"), {
+      url,
+      caption,
+      created: serverTimestamp(),
+      path: imgRef.fullPath
+    });
+  }
+  uploadForm.reset();
+  loadImages();
+};
+
+async function loadImages() {
+  const gallery = document.getElementById("gallery");
+  gallery.innerHTML = "Loading...";
+  const q = query(collection(db, "memories"), orderBy("created", "desc"));
+  const snapshots = await getDocs(q);
+  gallery.innerHTML = "";
+  snapshots.forEach(docSnap => {
+    const data = docSnap.data();
+    const div = document.createElement("div");
+    div.className = "image-card";
+    div.innerHTML = `
+      <img src="${data.url}" alt="Memory" />
+      <p>${data.caption || "No caption"}</p>
+      <button onclick="deleteImage('${docSnap.id}', '${data.path}')">Delete</button>
+    `;
+    gallery.appendChild(div);
+  });
+}
+
+window.deleteImage = async (id, path) => {
+  await deleteDoc(doc(db, "memories", id));
+  await deleteObject(storageRef(storage, path));
+  loadImages();
+};
+
+  </script>
   <style>
     body {
-      font-family: 'Arial', sans-serif;
-      background: linear-gradient(135deg, #ffe0f0, #d0e7ff);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
+      font-family: 'Segoe UI', sans-serif;
+      background: #fef6f6 url('https://i.imgur.com/OoP3tYM.jpg') no-repeat center top;
+      background-size: cover;
       margin: 0;
-      color: #333;
+      padding: 0;
     }
-    .box {
-      background: white;
-      padding: 30px;
-      border-radius: 20px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    .container {
+      max-width: 600px;
+      margin: auto;
+      padding: 2rem;
+      background: rgba(255, 255, 255, 0.85);
+      border-radius: 1rem;
+      margin-top: 4rem;
+    }
+    h1 {
       text-align: center;
+      font-size: 2rem;
+      color: #5c5470;
     }
-    input {
-      padding: 10px;
-      border-radius: 8px;
+    input, textarea, button {
+      width: 100%;
+      padding: 0.7rem;
+      margin: 0.5rem 0;
+      border-radius: 10px;
       border: 1px solid #ccc;
-      margin-top: 10px;
     }
-    button {
-      padding: 10px 20px;
-      border: none;
-      border-radius: 8px;
-      background: #ff66a3;
+    #gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
+    }
+    .image-card {
+      background: #fff;
+      border-radius: 10px;
+      padding: 0.5rem;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .image-card img {
+      width: 100%;
+      border-radius: 10px;
+    }
+    .image-card p {
+      font-size: 0.9rem;
+      color: #444;
+    }
+    .image-card button {
+      background: #f88;
       color: white;
-      font-weight: bold;
+      border: none;
       cursor: pointer;
-      margin-top: 15px;
-    }
-    .hidden {
-      display: none;
-    }
-    .content {
-      margin-top: 20px;
     }
   </style>
 </head>
 <body>
-  <div class="box">
-    <h2>Enter password to enter our private world</h2>
-    <input type="password" id="passwordInput" placeholder="Enter password..." />
-    <button onclick="checkPassword()">Enter</button>
-    <p id="error" style="color:red;"></p>
-
-    <div id="secretContent" class="content hidden">
-      <h3>Welcome, lovebirds!</h3>
-      <p>This is your private world, Zeynab & Umer.</p>
-      <p>More memories and magic coming soon...</p>
-    </div>
+  <div class="container" id="login-form">
+    <h1>Zuri Memories</h1>
+    <input type="password" id="password" placeholder="Enter password" />
+    <label><input type="checkbox" id="remember"> Remember me</label>
+    <button id="login-btn">Enter</button>
+  </div>  <div class="container" id="gallery-section" style="display: none">
+    <h1>Falling for you to the deepest point of deepest Pacific Ocean whenever I see you</h1>
+    <form id="upload-form">
+      <input type="file" id="images" multiple required />
+      <textarea id="caption" placeholder="Optional caption"></textarea>
+      <button type="submit">Upload</button>
+    </form>
+    <div id="gallery"></div>
   </div>
-
-  <script>
-    function checkPassword() {
-      const input = document.getElementById("passwordInput").value;
-      const error = document.getElementById("error");
-      if (input === "zuri1617") {
-        document.getElementById("secretContent").classList.remove("hidden");
-        error.textContent = "";
-      } else {
-        error.textContent = "Wrong password. Try again!";
-      }
-    }
-  </script>
 </body>
-</html>
+</html>      
