@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Zuri – Umer & Zeynab</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to bottom right, #ffe6f0, #f0e6ff);
+      color: #333;
+      overflow-x: hidden;
+    }
+    .lockscreen {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      flex-direction: column;
+      text-align: center;
+    }
+    input[type="password"] {
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      margin-top: 10px;
+    }
+    button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      border: none;
+      background: #d291bc;
+      color: white;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    #zuriContent {
+      display: none;
+      padding: 20px;
+    }
+    h1, h2 {
+      text-align: center;
+    }
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 15px;
+      margin-top: 20px;
+    }
+    .gallery img {
+      width: 100%;
+      border-radius: 10px;
+    }
+    .notes, .dates {
+      margin-top: 30px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="lockscreen">
+  <h2>Welcome to Zuri</h2>
+  <p>Enter password to enter our private world</p>
+  <input type="password" id="passwordInput" placeholder="Enter password">
+  <button onclick="checkPassword()">Unlock</button>
+</div>
+
+<div id="zuriContent">
+  <h1>Zuri – Umer & Zeynab</h1>
+  <div class="gallery">
+    <!-- Add your images here -->
+    <img src="https://via.placeholder.com/150" alt="Memory 1" />
+    <img src="https://via.placeholder.com/150" alt="Memory 2" />
+    <img src="https://via.placeholder.com/150" alt="Memory 3" />
+  </div>
+
+  <div class="notes">
+    <h2>Memory Notes</h2>
+    <p>“You’re my favorite person to do everything with.”</p>
+    <p>“Forever isn't long enough with you.”</p>
+  </div>
+
+  <div class="dates">
+    <h2>Special Dates</h2>
+    <ul>
+      <li>First Call – July 20, 2023</li>
+      <li>Anniversary – July 30, 2023</li>
+    </ul>
+  </div>
+</div>
+
+<script>
+  function checkPassword() {
+    const password = document.getElementById("passwordInput").value;
+    const correctPassword = "zeynab123"; // You can change this
+    if (password === correctPassword) {
+      document.querySelector(".lockscreen").style.display = "none";
+      document.getElementById("zuriContent").style.display = "block";
+    } else {
+      alert("Wrong password. Try again!");
+    }
+  }
+</script>
+
+</body>
+      </html>
