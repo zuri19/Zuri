@@ -3,106 +3,75 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Zuri – Umer & Zeynab</title>
+  <title>Our Private World</title>
   <style>
     body {
-      margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(to bottom right, #ffe6f0, #f0e6ff);
-      color: #333;
-      overflow-x: hidden;
-    }
-    .lockscreen {
+      font-family: 'Arial', sans-serif;
+      background: linear-gradient(135deg, #ffe0f0, #d0e7ff);
       display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
       flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      color: #333;
+    }
+    .box {
+      background: white;
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
       text-align: center;
     }
-    input[type="password"] {
+    input {
       padding: 10px;
-      font-size: 16px;
-      border-radius: 10px;
+      border-radius: 8px;
       border: 1px solid #ccc;
       margin-top: 10px;
     }
     button {
-      margin-top: 10px;
       padding: 10px 20px;
       border: none;
-      background: #d291bc;
+      border-radius: 8px;
+      background: #ff66a3;
       color: white;
-      border-radius: 10px;
+      font-weight: bold;
       cursor: pointer;
+      margin-top: 15px;
     }
-    #zuriContent {
+    .hidden {
       display: none;
-      padding: 20px;
     }
-    h1, h2 {
-      text-align: center;
-    }
-    .gallery {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-      gap: 15px;
+    .content {
       margin-top: 20px;
-    }
-    .gallery img {
-      width: 100%;
-      border-radius: 10px;
-    }
-    .notes, .dates {
-      margin-top: 30px;
     }
   </style>
 </head>
 <body>
+  <div class="box">
+    <h2>Enter password to enter our private world</h2>
+    <input type="password" id="passwordInput" placeholder="Enter password..." />
+    <button onclick="checkPassword()">Enter</button>
+    <p id="error" style="color:red;"></p>
 
-<div class="lockscreen">
-  <h2>Welcome to Zuri</h2>
-  <p>Enter password to enter our private world</p>
-  <input type="password" id="passwordInput" placeholder="Enter password">
-  <button onclick="checkPassword()">Unlock</button>
-</div>
-
-<div id="zuriContent">
-  <h1>Zuri – Umer & Zeynab</h1>
-  <div class="gallery">
-    <!-- Add your images here -->
-    <img src="https://via.placeholder.com/150" alt="Memory 1" />
-    <img src="https://via.placeholder.com/150" alt="Memory 2" />
-    <img src="https://via.placeholder.com/150" alt="Memory 3" />
+    <div id="secretContent" class="content hidden">
+      <h3>Welcome, lovebirds!</h3>
+      <p>This is your private world, Zeynab & Umer.</p>
+      <p>More memories and magic coming soon...</p>
+    </div>
   </div>
 
-  <div class="notes">
-    <h2>Memory Notes</h2>
-    <p>“You’re my favorite person to do everything with.”</p>
-    <p>“Forever isn't long enough with you.”</p>
-  </div>
-
-  <div class="dates">
-    <h2>Special Dates</h2>
-    <ul>
-      <li>First Call – July 20, 2023</li>
-      <li>Anniversary – July 30, 2023</li>
-    </ul>
-  </div>
-</div>
-
-<script>
-  function checkPassword() {
-    const password = document.getElementById("passwordInput").value;
-    const correctPassword = "zeynab123"; // You can change this
-    if (password === correctPassword) {
-      document.querySelector(".lockscreen").style.display = "none";
-      document.getElementById("zuriContent").style.display = "block";
-    } else {
-      alert("Wrong password. Try again!");
+  <script>
+    function checkPassword() {
+      const input = document.getElementById("passwordInput").value;
+      const error = document.getElementById("error");
+      if (input === "zuri1617") {
+        document.getElementById("secretContent").classList.remove("hidden");
+        error.textContent = "";
+      } else {
+        error.textContent = "Wrong password. Try again!";
+      }
     }
-  }
-</script>
-
+  </script>
 </body>
-      </html>
+</html>
